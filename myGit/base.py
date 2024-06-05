@@ -28,4 +28,34 @@ def write_tree(directory="."):
     
     return data.hash_object(tree.encode(), "tree")
                        
-                
+def iter_tree_entries(treeID):
+    if not treeID:
+        return
+    
+    tree = data.get_object(treeID, "tree")
+    for entry in tree.decode().splitlines():
+        type_, objectID, name = entry.split(" ", 2)
+        return type_, objectID, name
+
+def get_tree(objectID, base_path="."):
+    result = {}
+    for type_, objectID, name in iter_tree_entries(objectID):
+        assert "/" not in name
+        assert name not in ("..", ".")
+        
+        path = base_path + name
+        if type_ == "blob":
+            result[path] = objectID
+        elif type_ == "tree":
+            result.update(get_tree(objectID, f'{path}/'))
+        else:
+            assert False, f'Unknown tree entry {type_}'
+        
+        return result
+
+def read_tree(treeID):
+    for path, objectID in get_tree(treeID, base_path="./"):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        
+        with open(path, "wb") as file:
+            file.write(data.get_object(objectID))
