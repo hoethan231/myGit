@@ -4,6 +4,24 @@ from . import data
 def is_ignored(path):
     return ".mygit" in path.split("/")
 
+def empty_current_directory():
+    for root, dirnames, filenames in os.walk(".", topdown=False):
+        
+        for filename in filenames:
+            path = os.path.relpath(f'{root}/{filename}')
+            if is_ignored(path) or not os.path.isfile(path):
+                continue
+            os.remove(path)
+            
+        for dirname in dirnames:
+            path = os.path.relpath(f'{root}/{dirname}')
+            if is_ignored(path):
+                continue
+            try:
+                os.rmdir(path)
+            except(FileNotFoundError, OSError):
+                pass
+            
 def write_tree(directory="."):
     entries = []
     with os.scandir(directory) as dir:
@@ -54,6 +72,7 @@ def get_tree(objectID, base_path="."):
         return result
 
 def read_tree(treeID):
+    empty_current_directory()
     for path, objectID in get_tree(treeID, base_path="./"):
         os.makedirs(os.path.dirname(path), exist_ok=True)
         
