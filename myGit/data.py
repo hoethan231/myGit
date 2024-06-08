@@ -26,3 +26,12 @@ def get_object(objectID, expected="blob"):
     if expected is not None:
         assert type_ == expected, f'Expected {expected}, got {type_}'
     return data
+
+def set_HEAD(objectID):
+    with open(f'{GIT_DIR}/HEAD', "w") as file:
+        file.write(objectID)
+        
+def get_HEAD():
+    if os.path.isfile(f'{GIT_DIR}/HEAD'):
+        with open(f'{GIT_DIR}/HEAD') as file:
+            return file.read().strip()

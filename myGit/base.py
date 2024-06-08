@@ -78,3 +78,19 @@ def read_tree(treeID):
         
         with open(path, "wb") as file:
             file.write(data.get_object(objectID))
+            
+def commit(message):
+    commit = f'tree {write_tree()}\n'
+    
+    HEAD = data.get_HEAD()
+    if HEAD:
+        commit += f'parent {HEAD}\n'
+    
+    commit += '\n'
+    commit += f'{message}\n'
+    
+    objectID = data.hash_object(commit.encode(), "commit")
+    data.set_HEAD(objectID)
+    
+    return objectID
+    
