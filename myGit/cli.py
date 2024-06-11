@@ -35,10 +35,11 @@ def parse_args():
     
     commit_parser = commands.add_parser("commit")
     commit_parser.set_defaults(func=commit)
-    commit_parser.add_argument("message")
+    commit_parser.add_argument("-m", "--message", required=True)
     
     log_parser = commands.add_parser("log")
     log_parser.set_defaults(func=log)
+    log_parser.add_argument("objectID", nargs="?")
     
     return parser.parse_args()
 
@@ -64,7 +65,7 @@ def commit(args):
     print(base.commit(args.message))
     
 def log(args):
-    objectID = data.get_HEAD()
+    objectID = args.objectID or data.get_HEAD()
     while objectID:
         commit = base.get_commit(objectID)
         print(f'commit {objectID}\n')
