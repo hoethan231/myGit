@@ -1,4 +1,7 @@
+import itertools
+import operator
 import os
+from collections import namedtuple
 from . import data
 
 def is_ignored(path):
@@ -93,4 +96,22 @@ def commit(message):
     data.set_HEAD(objectID)
     
     return objectID
+
+Commit = namedtuple("Commit", ["tree", "parent", "message"])
+
+def get_commit(objectID):
+    parent = None
     
+    commit = data.get_object(objectID, "commit").decode()
+    lines = iter(commit.splitlines())
+    for line in itertools.takewhile(operator.truth, lines):
+        key, value = line.split(" ", 1)
+        if key == "tree":
+            tree = value
+        elif key == "parent":
+            parent = value
+        else:
+            assert False, f'Unknown field {key}'
+    
+    message = "\n".join(lines)
+    return Commit(tree=tree, parent=parent, message=message)
