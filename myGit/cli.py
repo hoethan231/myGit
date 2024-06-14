@@ -41,6 +41,10 @@ def parse_args():
     log_parser.set_defaults(func=log)
     log_parser.add_argument("objectID", nargs="?")
     
+    checkout_parser = commands.add_parser("checkout")
+    checkout_parser.set_defaults(func=checkout)
+    checkout_parser.add_argument("objectID")
+    
     return parser.parse_args()
 
 def init(args):
@@ -63,12 +67,3 @@ def read_tree(args):
     
 def commit(args):
     print(base.commit(args.message))
-    
-def log(args):
-    objectID = args.objectID or data.get_HEAD()
-    while objectID:
-        commit = base.get_commit(objectID)
-        print(f'commit {objectID}\n')
-        print(textwarp.indent(commit.message, "    "))
-        print("")
-        objectID = commit.parent

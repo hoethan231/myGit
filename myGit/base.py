@@ -96,7 +96,6 @@ def commit(message):
     data.set_HEAD(objectID)
     
     return objectID
-
 Commit = namedtuple("Commit", ["tree", "parent", "message"])
 
 def get_commit(objectID):
@@ -115,3 +114,8 @@ def get_commit(objectID):
     
     message = "\n".join(lines)
     return Commit(tree=tree, parent=parent, message=message)
+
+def checkout(objectID):
+    commit = get_commit(objectID)
+    read_tree(commit.tree)
+    data.set_HEAD(objectID)
